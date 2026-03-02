@@ -1,0 +1,8 @@
+python3 01_Crowd_Counting/CrowdCounting-P2PNet/run_test.py --weight_path ./01_Crowd_Counting/CrowdCounting-P2PNet/weights/SHTechA.pth --output_dir ./01_Crowd_Counting/CrowdCounting-P2PNet/logs/
+
+python3 01_Crowd_Counting/CrowdCounting-P2PNet/run_test_on_video.py --weight_path ./01_Crowd_Counting/CrowdCounting-P2PNet/weights/SHTechA.pth --output_dir ./01_Crowd_Counting/CrowdCounting-P2PNet/logs/
+
+python3 ./01_Crowd_Counting/CrowdCounting-P2PNet/01_Crowd_Counting_P2P.py  --weight_path ./01_Crowd_Counting/CrowdCounting-P2PNet/weights/SHTechA.pth --output_dir ./01_Crowd_Counting/CrowdCounting-P2PNet/logs/
+
+python3 ./01_Crowd_Counting/CrowdCounting-P2PNet/02_Crowd_Counting_Group_Detection.py  --weight_path ./01_Crowd_Counting/CrowdCounting-P2PNet/weights/SHTechA.pth --output_dir ./01_Crowd_Counting/CrowdCounting-P2PNet/logs/
+

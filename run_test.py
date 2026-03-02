@@ -15,6 +15,8 @@ from engine import *
 from models import build_model
 import os
 import warnings
+import time
+
 warnings.filterwarnings('ignore')
 
 def get_args_parser():
@@ -39,7 +41,7 @@ def get_args_parser():
     return parser
 
 def main(args, debug=False):
-
+    torch.cuda.reset_peak_memory_stats()
     os.environ["CUDA_VISIBLE_DEVICES"] = '{}'.format(args.gpu_id)
 
     print(args)
@@ -61,14 +63,17 @@ def main(args, debug=False):
     ])
 
     # set your image path here
-    img_path = "./vis/demo1.jpg"
+    img_path = "./01_Crowd_Counting/CrowdCounting-P2PNet/vis/crowd01.jpg"
     # load the images
     img_raw = Image.open(img_path).convert('RGB')
     # round the size
     width, height = img_raw.size
-    new_width = width // 128 * 128
-    new_height = height // 128 * 128
-    img_raw = img_raw.resize((new_width, new_height), Image.ANTIALIAS)
+    new_width = width // 256 * 256
+    new_height = height // 256 * 256
+    img_raw = img_raw.resize((new_width, new_height))
+
+    start = time.time()
+
     # pre-proccessing
     img = transform(img_raw)
 
@@ -77,10 +82,9 @@ def main(args, debug=False):
     # run inference
     outputs = model(samples)
     outputs_scores = torch.nn.functional.softmax(outputs['pred_logits'], -1)[:, :, 1][0]
-
     outputs_points = outputs['pred_points'][0]
 
-    threshold = 0.5
+    threshold = 0.25
     # filter the predictions
     points = outputs_points[outputs_scores > threshold].detach().cpu().numpy().tolist()
     predict_cnt = int((outputs_scores > threshold).sum())
@@ -89,12 +93,21 @@ def main(args, debug=False):
 
     outputs_points = outputs['pred_points'][0]
     # draw the predictions
-    size = 2
+    size = 4
     img_to_draw = cv2.cvtColor(np.array(img_raw), cv2.COLOR_RGB2BGR)
     for p in points:
         img_to_draw = cv2.circle(img_to_draw, (int(p[0]), int(p[1])), size, (0, 0, 255), -1)
+
+
+    peak_mem = torch.cuda.max_memory_allocated() / (1024**2)
+    print(f"Peak memory used: {peak_mem:.2f} MB")
+    end = time.time()
+
+    print(f"Inference time : {end-start} s")
     # save the visualized image
     cv2.imwrite(os.path.join(args.output_dir, 'pred{}.jpg'.format(predict_cnt)), img_to_draw)
+
+    
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('P2PNet evaluation script', parents=[get_args_parser()])

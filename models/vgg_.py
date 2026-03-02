@@ -4,7 +4,7 @@ Mostly copy-paste from torchvision references.
 """
 import torch
 import torch.nn as nn
-
+import torch.utils.model_zoo as model_zoo
 
 __all__ = [
     'VGG', 'vgg11', 'vgg11_bn', 'vgg13', 'vgg13_bn', 'vgg16', 'vgg16_bn',
@@ -103,7 +103,7 @@ def _vgg(arch, cfg, batch_norm, pretrained, progress, sync=False, **kwargs):
         kwargs['init_weights'] = False
     model = VGG(make_layers(cfgs[cfg], batch_norm=batch_norm, sync=sync), **kwargs)
     if pretrained:
-        state_dict = torch.load(model_paths[arch])
+        state_dict = model_zoo.load_url(model_urls[arch], progress=progress)
         model.load_state_dict(state_dict)
     return model
 
